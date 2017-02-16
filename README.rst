@@ -43,7 +43,7 @@ On production, just rename the file **productionenv-template--rename-this-file.e
 
     docker-compose -f docker-compose.yml -f docker-compose.production.yml up
 
-Lear more about `docker compose override and extends`_
+Learn more about `docker compose override / extends`_.
 
 .. _`docker compose override / extends`: https://docs.docker.com/compose/extends/
 
@@ -53,5 +53,5 @@ Credits
 https://taigaio.github.io/taiga-doc/dist/setup-production.html
 
 Inspired by:
-https://github.com/benhutchins/docker-taiga
-https://github.com/ipedrazas/taiga-docker
+* https://github.com/benhutchins/docker-taiga
+* https://github.com/ipedrazas/taiga-docker
