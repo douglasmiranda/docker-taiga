@@ -10,13 +10,13 @@ Deploy your Taiga services with Docker
 I've tried to containerize every module, so we have:
 
 * frontend_
-* backend_ 
- * postgres_
- * celery worker
-  * redis
- * rabbitmq 
+* backend_
+    * postgres_
+    * celery worker
+        * redis
+    * rabbitmq
 * events_
- * rabbitmq
+    * rabbitmq
 
 Bonus: I've added a config if you want to use mailgun.
 
