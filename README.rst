@@ -53,5 +53,6 @@ Credits
 https://taigaio.github.io/taiga-doc/dist/setup-production.html
 
 Inspired by:
+
 * https://github.com/benhutchins/docker-taiga
 * https://github.com/ipedrazas/taiga-docker
