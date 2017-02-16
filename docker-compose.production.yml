@@ -1,0 +1,36 @@
+version: '2'
+
+services:
+  postgresql:
+    restart: always
+    env_file: production.env
+
+  redis:
+    restart: always
+
+  rabbitmq:
+    restart: always
+    env_file: production.env
+
+  backend:
+    restart: always
+    env_file: production.env
+    environment:
+      - DJANGO_DEBUG=False
+    command: ['gunicorn', '--worker-class', 'gevent', '--workers', '4', '-b', '0.0.0.0:8000', 'taiga.wsgi']
+
+  frontend:
+    restart: always
+    env_file: production.env
+    environment:
+      - TAIGA_DEBUG=false
+
+  celeryworker:
+    restart: always
+    env_file: production.env
+    # Maybe you want to increase the workers, see <celeryworker> in docker-compose.yml
+    # command: ['celery', '-A', 'taiga', 'worker', '-P', 'gevent', '-c', '4', '--loglevel', 'info']
+
+  events:
+    restart: always
+    env_file: production.env

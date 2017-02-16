@@ -1,0 +1,17 @@
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Generated files
+*.log
+*.pot
+*.pyc
+.idea
+_build
+
+# custom
+__pycache__/
+tmp/*
+production.env
+productionenv
