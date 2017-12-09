@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# https://github.com/taigaio/taiga-back/blob/master/settings/local.py.example
 from .common import *
 import environ
 
@@ -48,13 +49,13 @@ MEDIA_ROOT = '/taiga_backend/media'
 STATIC_ROOT = '/taiga_backend/static-root'
 
 # Async
-BROKER_URL = 'amqp://taiga:taiga@rabbitmq:5672/taiga'
+# see celery_local.py
+# BROKER_URL = 'amqp://taiga:taiga@rabbitmq:5672/taiga'
 EVENTS_PUSH_BACKEND = "taiga.events.backends.rabbitmq.EventsPushBackend"
 EVENTS_PUSH_BACKEND_OPTIONS = {"url": "amqp://taiga:taiga@rabbitmq:5672/taiga"}
 
+# see celery_local.py
 CELERY_ENABLED = True
-CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
-CELERY_TIMEZONE = 'Europe/Madrid'
 
 # Mail settings
 if env('USE_ANYMAIL', cast=bool, default=False):

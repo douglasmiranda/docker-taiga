@@ -23,6 +23,7 @@ RUN pip install django-environ==0.4.0 gevent==1.1.2 django-anymail==0.5
 RUN python manage.py compilemessages
 
 COPY local.py settings/local.py
+COPY celery_local.py settings/celery_local.py
 COPY scripts/ /scripts/
 RUN chmod +x /scripts/entrypoint.sh
 
