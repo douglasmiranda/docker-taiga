@@ -36,6 +36,7 @@ try it, just type:
     docker-compose up
 
 PS: This will load the *docker-compose.override.yml* too (useful for local / dev envs)
+PS: since the frontend port is mapped to 80, just go to your brower and http://localhost. The login credentials are **admin** with password **123123**.
 
 On production, just rename the file **productionenv-template--rename-this-file.env** to **production.env**
 
