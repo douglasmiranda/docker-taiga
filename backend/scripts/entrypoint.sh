@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 # Setup database automatically if needed
 if [ -z "$TAIGA_SKIP_DB_CHECK" ]; then
   DB_CHECK_STATUS=$(python /scripts/checkdb.py)
-  if [[ $DB_CHECK_STATUS == "missing_django_migrations" ]]; then
+  if [[ "$DB_CHECK_STATUS" == "missing_django_migrations" ]]; then
     echo "Configuring initial database"
     python /taiga_backend/manage.py migrate --noinput
     python /taiga_backend/manage.py loaddata initial_user

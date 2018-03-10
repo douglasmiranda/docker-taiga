@@ -1,33 +1,66 @@
-FROM python:3.5.2
-MAINTAINER Douglas Miranda <douglasmirandasilva@gmail.com>
+FROM python:3.6-alpine3.6 as BUILDER
 
-RUN mkdir /taiga_backend
+ENV TAIGA_VERSION 3.1.3
+
+RUN apk update \
+    && apk add --virtual build-dependencies \
+    # Essentials
+    gcc musl-dev libressl-dev \
+    # Postgres python client (psycopg2) build dependency
+    postgresql-dev \
+    # Pillow / PIL build dependencies
+    freetype-dev jpeg-dev libwebp-dev tiff-dev libpng-dev lcms2-dev \
+    openjpeg-dev zlib-dev libxslt-dev libxml2-dev libffi-dev
+
 WORKDIR /taiga_backend
 
-RUN apt-get update
+ADD https://github.com/taigaio/taiga-back/archive/${TAIGA_VERSION}.tar.gz ./
+RUN tar -xzf ${TAIGA_VERSION}.tar.gz -C ./ taiga-back-${TAIGA_VERSION} --strip-components=1
+RUN rm ${TAIGA_VERSION}.tar.gz
 
-RUN groupadd -r taiga && useradd -r -g taiga taiga
+# Don't want pip to use git, so I'm replacing with pypi.  
+RUN sed -i 's,git+https://github.com/Xof/django-pglocks.git,django-pglocks==1.0.2,g' requirements.txt
 
-RUN apt-get install -y build-essential binutils-doc autoconf flex bison \
-    libjpeg-dev libfreetype6-dev zlib1g-dev libzmq3-dev libgdbm-dev \
-    libncurses5-dev automake libtool libffi-dev curl git tmux gettext \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN git clone -b stable --single-branch https://github.com/taigaio/taiga-back.git ./
-RUN pip install -r requirements.txt
 # local.py and checkdb.py and celery
 # using gevent to run taiga gunicorn (workers)
 # using gevent on celery (workers)
-RUN pip install django-environ==0.4.0 gevent==1.1.2 django-anymail==0.5
+RUN echo "django-environ==0.4.0" >> requirements.txt
+RUN echo "gevent==1.1.2" >> requirements.txt
+RUN echo "django-anymail==0.5" >> requirements.txt
 
-RUN python manage.py compilemessages
+RUN pip wheel --wheel-dir=./taiga_python_dependencies -r requirements.txt
+
+
+# FINAL IMAGE
+FROM python:3.6-alpine3.6
+
+LABEL maintainer="douglasmirandasilva@gmail.com"
+LABEL taiga_version="tag:3.1.3"
+
+WORKDIR /taiga_backend
+
+COPY --from=BUILDER /taiga_backend ./
+
+RUN apk add --no-cache \
+    # Pillow / PIL
+    freetype jpeg libwebp tiff libpng lcms2 openjpeg zlib libxslt libxml2 libffi \
+    # Postgres python client
+    libpq \
+    # Needed for localization stuff: python manage.py compilemessages
+    gettext
+
+RUN pip install --no-cache-dir --no-index --find-links=taiga_python_dependencies -r requirements.txt \
+    && rm -R ./taiga_python_dependencies \
+    && python manage.py compilemessages
 
 COPY local.py settings/local.py
 COPY celery_local.py settings/celery_local.py
 COPY scripts/ /scripts/
-RUN chmod +x /scripts/entrypoint.sh
 
-RUN mkdir /taiga_backend/media && mkdir /taiga_backend/static-root
-RUN chown -R taiga /taiga_backend \
+RUN mkdir /taiga_backend/media && mkdir /taiga_backend/static-root \
+    && addgroup -S taiga && adduser -S -G taiga taiga \
+    && chown -R taiga ./ \
     && chown -R taiga /scripts/ \
-    && chown -R taiga /taiga_backend/static-root
+    && chmod +x /scripts/entrypoint.sh
+
+USER taiga

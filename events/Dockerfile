@@ -1,19 +1,23 @@
-FROM node:6.5.0-slim
-MAINTAINER Douglas Miranda <douglasmirandasilva@gmail.com>
+FROM node:8.9-alpine
 
-RUN mkdir /taiga_events
+LABEL maintainer="douglasmirandasilva@gmail.com"
+LABEL taiga_version="branch:master"
+
+ENV TAIGA_VERSION master
+
 WORKDIR /taiga_events
-
-RUN groupadd -r taiga && useradd -r -g taiga taiga
-
-RUN apt-get update && apt-get install -y git \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN git clone -b master --single-branch https://github.com/taigaio/taiga-events.git ./
-
-RUN npm install --production && npm install -g coffee-script
-# RUN mkdir /taiga_events/logs
-
 COPY scripts/ /scripts/
-RUN chmod +x /scripts/entrypoint.sh
-RUN chown -R taiga /taiga_events \
-    && chown -R taiga /scripts/
+# Getting from branch master, they don't provide tags, or stable branch
+# https://github.com/taigaio/taiga-events/issues/8
+ADD https://github.com/taigaio/taiga-events/archive/${TAIGA_VERSION}.tar.gz /taiga_events/
+RUN tar -xzf ${TAIGA_VERSION}.tar.gz -C ./ taiga-events-master/ --strip-components=1 \
+    && rm ${TAIGA_VERSION}.tar.gz \
+    && npm install --production && npm install -g coffee-script \
+    && addgroup -S taiga && adduser -S -G taiga taiga \
+    && chown -R taiga /taiga_events \
+    && chown -R taiga /scripts/ \
+    && chmod +x /scripts/entrypoint.sh
+
+USER taiga
+ENTRYPOINT ["/scripts/entrypoint.sh"]
+CMD ["coffee", "index.coffee"]

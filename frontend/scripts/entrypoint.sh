@@ -1,12 +1,14 @@
-#!/bin/bash
-set -e
+#!/bin/sh
 
-if [ ! -f /taiga_frontend/dist/conf.json ]; then
-    echo "Generating /taiga_frontend/dist/conf.json file..."
+set -o errexit
+set -o pipefail
+
+if [ ! -f /taiga_frontend/conf.json ]; then
+    echo "Generating /taiga_frontend/conf.json file..."
     TAIGA_API_URL=${TAIGA_API_URL:-\"/api/v1/\"}
     DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE:-\"en\"}
     TAIGA_EVENTS_URL=${TAIGA_EVENTS_URL:-null}
-    cat > /taiga_frontend/dist/conf.json <<EOF
+    cat > /taiga_frontend/conf.json <<EOF
 {
     "api": $TAIGA_API_URL,
     "eventsUrl": $TAIGA_EVENTS_URL,

@@ -7,11 +7,19 @@ Deploy your Taiga services with Docker
 .. image:: https://raw.githubusercontent.com/douglasmiranda/docker-taiga/master/docker-taiga.jpg
     :alt: Docker Taiga
 
+Goodies
+-------
+
+* Python 3.6
+* Postgres 10
+* Alpine Linux images
+* Gevent worker for gunicorn
+* django-anymail integration
+
 I've tried to containerize every module, so we have:
 
 * frontend_
 * backend_
-    * postgres_
     * celery worker
         * redis
     * rabbitmq
@@ -22,7 +30,6 @@ Bonus: I've added a config if you want to use mailgun.
 
 .. _frontend: frontend/
 .. _backend: https://github.com/taigaio/taiga-back
-.. _postgres: postgres/
 .. _events: events/
 
 Quickstart
@@ -48,6 +55,13 @@ On production, just rename the file **productionenv-template--rename-this-file.e
 Learn more about `docker compose override / extends`_.
 
 .. _`docker compose override / extends`: https://docs.docker.com/compose/extends/
+
+Tips, Tricks and Notes
+----------------------
+
+* Most of the configurations you will be able to do on docker-compose.yml and .env file.
+* Because of lxml and cryptography you would have to spin up a server with more RAM than you would want, but if you build locally, push to a registry and just pull on your server, you won't be compiling on deploy. =]
+* I plan to use Caddy instead of Nginx, but don't know when, you may want to look, it's nice.
 
 Credits
 -------

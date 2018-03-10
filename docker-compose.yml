@@ -7,7 +7,7 @@ volumes:
 
 services:
   postgresql:
-    build: postgres/
+    image: postgres:10-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - postgres_backup:/backups
@@ -17,10 +17,10 @@ services:
       - POSTGRES_PASSWORD=123
 
   redis:
-    image: redis:3.2.6
+    image: redis:4.0-alpine
 
   rabbitmq:
-    image: rabbitmq:3.6.6
+    image: rabbitmq:3.6-alpine
     hostname: taiga_rabbitmq
     environment:
       # https://www.rabbitmq.com/clustering.html#erlang-cookie
@@ -75,8 +75,6 @@ services:
     #   - DEFAULT_LANGUAGE="en"
     ports:
       - "80:80"
-    entrypoint: ['/scripts/entrypoint.sh']
-    command: ["nginx", "-g", "daemon off;"]
     depends_on:
       # It would be better to add 'postgres' to 'depends_on' on 'backend' service
       # but 'celeryworker' extends 'backend' and we cannot extend a service
@@ -99,7 +97,5 @@ services:
     environment:
       # SAME AS DJANGO_SECRET_KEY
       - TAIGA_SECRET=DJANGO_SECRET_KEY
-    entrypoint: ['/scripts/entrypoint.sh']
-    command: ['coffee', 'index.coffee']
     depends_on:
       - rabbitmq

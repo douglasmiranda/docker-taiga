@@ -1,17 +1,21 @@
-FROM nginx:1.10.2
-MAINTAINER Douglas Miranda <douglasmirandasilva@gmail.com>
+FROM nginx:1.13-alpine
 
-RUN mkdir /taiga_frontend
-WORKDIR /taiga_frontend
+LABEL maintainer="douglasmirandasilva@gmail.com"
+LABEL taiga_version="tag:3.1.3-stable"
 
-RUN apt-get update && apt-get install -y git \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN git clone -b stable --single-branch https://github.com/taigaio/taiga-front-dist.git ./
+ENV TAIGA_VERSION 3.1.3-stable
 
-RUN mkdir /taiga_frontend/logs
 COPY nginx/ /etc/nginx/conf.d/
-
+# Entrypoint
 COPY scripts/ /scripts/
-RUN chmod +x /scripts/entrypoint.sh
-RUN chown -R nginx /taiga_frontend \
-    && chown -R nginx /scripts/
+# Frontend compiled code
+ADD https://github.com/taigaio/taiga-front-dist/archive/${TAIGA_VERSION}.tar.gz /taiga_frontend/
+WORKDIR /taiga_frontend
+RUN tar -xzf ${TAIGA_VERSION}.tar.gz -C ./ taiga-front-dist-${TAIGA_VERSION}/dist --strip-components=2 \
+    && rm ${TAIGA_VERSION}.tar.gz \
+    && chown -R nginx /taiga_frontend \
+    && chown -R nginx /scripts/ \
+    && chmod +x /scripts/entrypoint.sh
+
+ENTRYPOINT ["/scripts/entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
