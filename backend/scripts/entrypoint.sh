@@ -9,6 +9,8 @@ if [ -z "$TAIGA_SKIP_DB_CHECK" ]; then
     python /taiga_backend/manage.py migrate --noinput
     python /taiga_backend/manage.py loaddata initial_user
     python /taiga_backend/manage.py loaddata initial_project_templates
+    python /taiga_backend/manage.py compilemessages
+    python /taiga_backend/manage.py collectstatic --noinput
   fi
 fi
 
